@@ -1,0 +1,16 @@
+[
+{
+  "modid": "tsm",
+  "name": "The Stuff Mod",
+  "description": "Adds some stuff",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["TrashCaster"],
+  "credits": "TrashCaster",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
