@@ -9,6 +9,7 @@ import com.trashcaster.tsm.inventory.InventoryAccessories;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.EntityTracker;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
@@ -27,10 +28,12 @@ public class SyncPlayerPropsMessage implements IMessage {
 	UUID playerID;
 	NBTTagCompound tag;
 
+	// This is for sending to servers from clients who need other
+	// players' accessories synced to them (Sync request)
 	public SyncPlayerPropsMessage() {
 	}
 
-	// This packet should only be sent from the server
+	// This is for sending to clients who need the synced data of another player
 	public SyncPlayerPropsMessage(EntityPlayer player) {
 		this.playerID = player.getGameProfile().getId();
 		this.tag = new NBTTagCompound();
@@ -39,12 +42,22 @@ public class SyncPlayerPropsMessage implements IMessage {
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
-		this.playerID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
-		this.tag = ByteBufUtils.readTag(buf);
+		String id = ByteBufUtils.readUTF8String(buf);
+		if (!id.equals("NULL")) {
+		    this.playerID = UUID.fromString(id);
+		    this.tag = ByteBufUtils.readTag(buf);
+		} else {
+			// assume this is a client to server request
+		}
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf) {
+		if (playerID == null || tag == null) {
+			ByteBufUtils.writeUTF8String(buf, "NULL");
+			// assume this is a client to server request
+			return;
+		}
 		ByteBufUtils.writeUTF8String(buf, this.playerID.toString());
 		ByteBufUtils.writeTag(buf, this.tag);
 	}
@@ -57,8 +70,10 @@ public class SyncPlayerPropsMessage implements IMessage {
 				@Override
 				public void run() {
 				    EntityPlayer player = Minecraft.getMinecraft().theWorld.getPlayerEntityByUUID(message.playerID);
-				    ExtendedPlayer.get(player).getAccessories().clear();
-				    ExtendedPlayer.get(player).loadNBTData(message.tag);
+				    if (player != null) {
+				        ExtendedPlayer.get(player).getAccessories().clear();
+				        ExtendedPlayer.get(player).loadNBTData(message.tag);
+				    }
 				}
 			});
 			return null;
@@ -72,7 +87,12 @@ public class SyncPlayerPropsMessage implements IMessage {
 			mainThread.addScheduledTask(new Runnable() {
 				@Override
 				public void run() {
-					System.out.println("Client packet received on server. This should NOT be happening!");
+					System.out.println("Sync request received from "+ctx.getServerHandler().playerEntity.getName());
+					EntityTracker tracker = ((WorldServer) ctx.getServerHandler().playerEntity.worldObj).getEntityTracker();
+					for (EntityPlayer player:tracker.getTrackingPlayers(ctx.getServerHandler().playerEntity)) {
+						ExtendedPlayer.get(player).getAccessories();
+						TSM.NETWORK.sendTo(new SyncPlayerPropsMessage(player), ctx.getServerHandler().playerEntity);
+					}
 				}
 			});
 			return null;

@@ -96,7 +96,6 @@ public class InventoryAccessories implements IInventory {
 			if (this.getStackInSlot(i) != null && this.getStackInSlot(i).stackSize == 0)
 				this.setInventorySlotContents(i, null);
 		}
-		System.out.println("Dirty");
 	}
 
 	@Override

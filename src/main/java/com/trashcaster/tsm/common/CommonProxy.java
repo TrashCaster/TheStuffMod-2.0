@@ -23,6 +23,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -62,12 +63,15 @@ public class CommonProxy {
 		public void onEntityJoinWorld(EntityJoinWorldEvent event) {
 			if (event.entity instanceof EntityPlayer) {
 				if (!event.world.isRemote) {
+					ExtendedPlayer.get((EntityPlayer)event.entity);
 		    	    EntityTracker tracker = ((WorldServer)event.world).getEntityTracker();
 		    	    tracker.sendToAllTrackingEntity((EntityPlayer)event.entity, TSM.NETWORK.getPacketFrom(new SyncPlayerPropsMessage((EntityPlayer)event.entity)));
 		    	    Set<EntityPlayer> otherPlayers = tracker.getTrackingPlayers(event.entity);
 		    	    for (EntityPlayer p:otherPlayers) {
 		    	    	TSM.NETWORK.sendTo(new SyncPlayerPropsMessage(p), (EntityPlayerMP)event.entity);
 		    	    }
+				} else {
+					TSM.NETWORK.sendToServer(new SyncPlayerPropsMessage());
 				}
 			}
 		}
@@ -81,6 +85,20 @@ public class CommonProxy {
 					if (item != null) {
 					    event.entityPlayer.dropItem(item, true, true);
 					}
+				}
+			}
+		}
+		
+		@SubscribeEvent
+		public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
+			if (event.entity instanceof EntityPlayer) {
+				if (!event.entityLiving.worldObj.isRemote) {
+		    	    EntityTracker tracker = ((WorldServer)event.entityLiving.worldObj).getEntityTracker();
+		    	    tracker.sendToAllTrackingEntity((EntityPlayer)event.entity, TSM.NETWORK.getPacketFrom(new SyncPlayerPropsMessage((EntityPlayer)event.entity)));
+		    	    Set<EntityPlayer> otherPlayers = tracker.getTrackingPlayers(event.entity);
+		    	    for (EntityPlayer p:otherPlayers) {
+		    	    	TSM.NETWORK.sendTo(new SyncPlayerPropsMessage(p), (EntityPlayerMP)event.entity);
+		    	    }
 				}
 			}
 		}

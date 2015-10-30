@@ -79,6 +79,14 @@ public class ClientProxy extends CommonProxy {
 				}
 			}
 		}
+		
+		@SideOnly(Side.CLIENT)
+		@SubscribeEvent
+		public void onMouse(MouseEvent event) {
+			if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
+				event.setCanceled(true);
+			}
+		}
 
 		@SideOnly(Side.CLIENT)
 		@SubscribeEvent
