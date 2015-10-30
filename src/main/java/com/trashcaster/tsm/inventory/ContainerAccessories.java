@@ -3,6 +3,7 @@ package com.trashcaster.tsm.inventory;
 import com.trashcaster.tsm.TSM;
 import com.trashcaster.tsm.message.SyncPlayerPropsMessage;
 
+import net.minecraft.entity.EntityTracker;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -11,6 +12,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -151,7 +153,8 @@ public class ContainerAccessories extends Container {
     {
     	super.detectAndSendChanges();
     	if (!this.player.worldObj.isRemote) {
-    	    TSM.NETWORK.sendToAll(new SyncPlayerPropsMessage(player));
+    	    EntityTracker tracker = ((WorldServer)this.player.worldObj).getEntityTracker();
+    	    tracker.sendToAllTrackingEntity(this.player, TSM.NETWORK.getPacketFrom(new SyncPlayerPropsMessage(this.player)));
     	}
     }
 	

@@ -7,6 +7,7 @@ import com.trashcaster.tsm.entity.ExtendedPlayer;
 import com.trashcaster.tsm.inventory.ContainerAccessories;
 import com.trashcaster.tsm.inventory.ContainerInventoryExpanded;
 import com.trashcaster.tsm.message.Message;
+import com.trashcaster.tsm.message.SyncPlayerPropsMessage;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -21,6 +22,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid = TSM.MODID, version = TSM.VERSION)
 public class TSM
@@ -39,15 +41,19 @@ public class TSM
 	public GuiHandler guiHandler = new GuiHandler();
     
     @EventHandler
-    public void preInit(FMLPreInitializationEvent event)
-    {
+    public void preInit(FMLPreInitializationEvent event) {
         NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel("TSMnet");
+        
+		NETWORK.registerMessage(Message.ServerHandler.class, Message.class, 1, Side.SERVER);
+		NETWORK.registerMessage(Message.ClientHandler.class, Message.class, 1, Side.CLIENT);
+		NETWORK.registerMessage(SyncPlayerPropsMessage.ServerHandler.class, SyncPlayerPropsMessage.class, 2, Side.SERVER);
+		NETWORK.registerMessage(SyncPlayerPropsMessage.ClientHandler.class, SyncPlayerPropsMessage.class, 2, Side.CLIENT);
+		
     	PROXY.preInit();
     }
     
     @EventHandler
-    public void init(FMLInitializationEvent event)
-    {
+    public void init(FMLInitializationEvent event) {
     	PROXY.init();
         NetworkRegistry.INSTANCE.registerGuiHandler(INSTANCE, guiHandler);
     }

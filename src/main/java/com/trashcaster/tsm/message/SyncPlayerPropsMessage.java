@@ -34,7 +34,7 @@ public class SyncPlayerPropsMessage implements IMessage {
 	public SyncPlayerPropsMessage(EntityPlayer player) {
 		this.playerID = player.getGameProfile().getId();
 		this.tag = new NBTTagCompound();
-		ExtendedPlayer.get(player).getAccessories().writeToNBT(this.tag);
+		ExtendedPlayer.get(player).saveNBTData(this.tag);
 	}
 
 	@Override
@@ -49,7 +49,6 @@ public class SyncPlayerPropsMessage implements IMessage {
 		ByteBufUtils.writeTag(buf, this.tag);
 	}
 
-	@SideOnly(Side.CLIENT)
 	public static class ClientHandler implements IMessageHandler<SyncPlayerPropsMessage, IMessage> {
 		@Override
 		public IMessage onMessage(final SyncPlayerPropsMessage message, final MessageContext ctx) {
@@ -57,9 +56,9 @@ public class SyncPlayerPropsMessage implements IMessage {
 			mainThread.addScheduledTask(new Runnable() {
 				@Override
 				public void run() {
-				    InventoryAccessories inv = new InventoryAccessories();
-					inv.readFromNBT(message.tag);
-					ClientProxy.playerInventories.put(message.playerID, inv);
+				    EntityPlayer player = Minecraft.getMinecraft().theWorld.getPlayerEntityByUUID(message.playerID);
+				    ExtendedPlayer.get(player).getAccessories().clear();
+				    ExtendedPlayer.get(player).loadNBTData(message.tag);
 				}
 			});
 			return null;

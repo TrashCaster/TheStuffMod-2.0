@@ -1,5 +1,8 @@
 package com.trashcaster.tsm.common;
 
+import java.util.List;
+import java.util.Set;
+
 import com.trashcaster.tsm.TSM;
 import com.trashcaster.tsm.client.gui.inventory.GuiInventoryExpanded;
 import com.trashcaster.tsm.entity.ExtendedPlayer;
@@ -9,8 +12,10 @@ import com.trashcaster.tsm.message.SyncPlayerPropsMessage;
 import com.trashcaster.tsm.message.Message;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EntityTracker;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.world.World;
@@ -31,11 +36,9 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class CommonProxy {
 
-	private static CommonEventHandler eventHandler = new CommonEventHandler();
+	private CommonEventHandler eventHandler = new CommonEventHandler();
 
 	public void preInit() {
-		TSM.NETWORK.registerMessage(Message.ServerHandler.class, Message.class, 1, Side.SERVER);
-		TSM.NETWORK.registerMessage(SyncPlayerPropsMessage.ServerHandler.class, SyncPlayerPropsMessage.class, 2, Side.SERVER);
 		MinecraftForge.EVENT_BUS.register(eventHandler);
 		FMLCommonHandler.instance().bus().register(eventHandler);
 	}
@@ -43,7 +46,7 @@ public class CommonProxy {
 	public void init() {}
 	public void postInit() {}
 
-	public static class CommonEventHandler {
+	public class CommonEventHandler {
 		@SubscribeEvent
 		public void onEntityConstructing(EntityConstructing event) {
 			if (event.entity instanceof EntityPlayer && ExtendedPlayer.get((EntityPlayer) event.entity) == null) {
@@ -58,9 +61,13 @@ public class CommonProxy {
 		@SubscribeEvent
 		public void onEntityJoinWorld(EntityJoinWorldEvent event) {
 			if (event.entity instanceof EntityPlayer) {
-				ExtendedPlayer props = ExtendedPlayer.get((EntityPlayer) event.entity);
 				if (!event.world.isRemote) {
-				    TSM.NETWORK.sendToAll(new SyncPlayerPropsMessage((EntityPlayer)event.entity));
+		    	    EntityTracker tracker = ((WorldServer)event.world).getEntityTracker();
+		    	    tracker.sendToAllTrackingEntity((EntityPlayer)event.entity, TSM.NETWORK.getPacketFrom(new SyncPlayerPropsMessage((EntityPlayer)event.entity)));
+		    	    Set<EntityPlayer> otherPlayers = tracker.getTrackingPlayers(event.entity);
+		    	    for (EntityPlayer p:otherPlayers) {
+		    	    	TSM.NETWORK.sendTo(new SyncPlayerPropsMessage(p), (EntityPlayerMP)event.entity);
+		    	    }
 				}
 			}
 		}

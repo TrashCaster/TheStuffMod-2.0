@@ -34,7 +34,6 @@ public class Message implements IMessage {
 		ByteBufUtils.writeUTF8String(buf, string);
 	}
 
-	@SideOnly(Side.CLIENT)
 	public static class ClientHandler implements IMessageHandler<Message, IMessage> {
 		@Override
 		public IMessage onMessage(final Message message, final MessageContext ctx) {
