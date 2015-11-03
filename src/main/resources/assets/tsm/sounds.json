@@ -1,0 +1,30 @@
+{
+  "item.voxelizer.start": {
+    "category": "player",
+    "replace": true,
+    "sounds": [
+      "tsm:voxelizer/start"
+    ]
+  },
+  "item.voxelizer.use": {
+    "category": "player",
+    "replace": true,
+    "sounds": [
+      "tsm:voxelizer/use"
+    ]
+  },
+  "item.voxelizer.finish": {
+    "category": "player",
+    "replace": true,
+    "sounds": [
+      "tsm:voxelizer/finish"
+    ]
+  },
+  "item.voxelizer.fail": {
+    "category": "player",
+    "replace": true,
+    "sounds": [
+      "tsm:voxelizer/fail"
+    ]
+  }
+}

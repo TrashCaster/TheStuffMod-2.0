@@ -1,8 +1,5 @@
 package com.trashcaster.tsm.inventory;
 
-import com.trashcaster.tsm.TSM;
-import com.trashcaster.tsm.message.SyncPlayerPropsMessage;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -11,169 +8,169 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.common.util.Constants;
-import scala.actors.threadpool.Arrays;
 
 public class InventoryAccessories implements IInventory {
-	
-	private final String name = "accessories";
 
-	private final String tagName = "Items";
+    private final String name = "accessories";
 
-	public static final int INV_SIZE = 6;
+    private final String tagName = "Items";
 
-	ItemStack[] inventory = new ItemStack[INV_SIZE];
+    public static final int INV_SIZE = 6;
 
-	public InventoryAccessories() {
-	}
+    ItemStack[] inventory = new ItemStack[INV_SIZE];
 
-	@Override
+    public InventoryAccessories() {
+    }
 
-	public int getSizeInventory(){
-		return inventory.length;
-	}
+    @Override
 
-	@Override
+    public int getSizeInventory() {
+        return inventory.length;
+    }
 
-	public ItemStack getStackInSlot(int slot) {
-		if (slot > inventory.length) return null;
-		return inventory[slot];
-	}
+    @Override
 
-	@Override
-	public ItemStack decrStackSize(int slot, int amount){
-		ItemStack stack = getStackInSlot(slot);
-		if (stack != null) {
-			if (stack.stackSize > amount) {
-				stack = stack.splitStack(amount);
-				if (stack.stackSize == 0) {
-					setInventorySlotContents(slot, null);
-				}
-			} else {
-				setInventorySlotContents(slot, null);
-			}
-			this.markDirty();
-		}
-		return stack;
-	}
+    public ItemStack getStackInSlot(int slot) {
+        if (slot > inventory.length)
+            return null;
+        return inventory[slot];
+    }
 
-	@Override
-	public ItemStack getStackInSlotOnClosing(int slot) {
-		ItemStack stack = getStackInSlot(slot);
+    @Override
+    public ItemStack decrStackSize(int slot, int amount) {
+        ItemStack stack = getStackInSlot(slot);
+        if (stack != null) {
+            if (stack.stackSize > amount) {
+                stack = stack.splitStack(amount);
+                if (stack.stackSize == 0) {
+                    setInventorySlotContents(slot, null);
+                }
+            } else {
+                setInventorySlotContents(slot, null);
+            }
+            this.markDirty();
+        }
+        return stack;
+    }
 
-		if (stack != null) {
+    @Override
+    public ItemStack getStackInSlotOnClosing(int slot) {
+        ItemStack stack = getStackInSlot(slot);
 
-			setInventorySlotContents(slot, null);
+        if (stack != null) {
 
-		}
-		return stack;
-	}
+            setInventorySlotContents(slot, null);
 
-	@Override
-	public void setInventorySlotContents(int slot, ItemStack itemstack) {
-		this.inventory[slot] = itemstack;
+        }
+        return stack;
+    }
 
-		if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit()) {
+    @Override
+    public void setInventorySlotContents(int slot, ItemStack itemstack) {
+        this.inventory[slot] = itemstack;
 
-			itemstack.stackSize = this.getInventoryStackLimit();
+        if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit()) {
 
-		}
-		this.markDirty();
-	}
+            itemstack.stackSize = this.getInventoryStackLimit();
 
-	@Override
-	public String getName() {
-		return name;
-	}
+        }
+        this.markDirty();
+    }
 
-	@Override
-	public int getInventoryStackLimit() {
-		return 1;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public void markDirty() {
-		for (int i = 0; i < this.getSizeInventory(); ++i) {
-			if (this.getStackInSlot(i) != null && this.getStackInSlot(i).stackSize == 0)
-				this.setInventorySlotContents(i, null);
-		}
-	}
+    @Override
+    public int getInventoryStackLimit() {
+        return 1;
+    }
 
-	@Override
-	public boolean isUseableByPlayer(EntityPlayer entityplayer) {
-		return true;
-	}
+    @Override
+    public void markDirty() {
+        for (int i = 0; i < this.getSizeInventory(); ++i) {
+            if (this.getStackInSlot(i) != null && this.getStackInSlot(i).stackSize == 0)
+                this.setInventorySlotContents(i, null);
+        }
+    }
 
-	@Override
-	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
-		return true;
-	}
+    @Override
+    public boolean isUseableByPlayer(EntityPlayer entityplayer) {
+        return true;
+    }
 
-	public void writeToNBT(NBTTagCompound tagcompound) {
-		NBTTagList nbttaglist = new NBTTagList();
+    @Override
+    public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
+        return true;
+    }
 
-		for (int i = 0; i < this.getSizeInventory(); ++i) {
-			if (this.getStackInSlot(i) != null) {
-				NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-				nbttagcompound1.setByte("Slot", (byte) i);
-				this.getStackInSlot(i).writeToNBT(nbttagcompound1);
-				nbttaglist.appendTag(nbttagcompound1);
-			}
-		}
-		tagcompound.setTag(tagName, nbttaglist);
-	}
+    public void writeToNBT(NBTTagCompound tagcompound) {
+        NBTTagList nbttaglist = new NBTTagList();
 
-	public void readFromNBT(NBTTagCompound tagcompound) {
-		NBTTagList nbttaglist = tagcompound.getTagList(tagName, Constants.NBT.TAG_COMPOUND);
-		for (int i = 0; i < nbttaglist.tagCount(); ++i) {
-			NBTTagCompound nbttagcompound1 = (NBTTagCompound) nbttaglist.get(i);
-			byte b0 = nbttagcompound1.getByte("Slot");
+        for (int i = 0; i < this.getSizeInventory(); ++i) {
+            if (this.getStackInSlot(i) != null) {
+                NBTTagCompound nbttagcompound1 = new NBTTagCompound();
+                nbttagcompound1.setByte("Slot", (byte) i);
+                this.getStackInSlot(i).writeToNBT(nbttagcompound1);
+                nbttaglist.appendTag(nbttagcompound1);
+            }
+        }
+        tagcompound.setTag(tagName, nbttaglist);
+    }
 
-			if (b0 >= 0 && b0 < this.getSizeInventory()) {
-				this.setInventorySlotContents(b0, ItemStack.loadItemStackFromNBT(nbttagcompound1));
-			}
-		}
-	}
+    public void readFromNBT(NBTTagCompound tagcompound) {
+        NBTTagList nbttaglist = tagcompound.getTagList(tagName, Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < nbttaglist.tagCount(); ++i) {
+            NBTTagCompound nbttagcompound1 = (NBTTagCompound) nbttaglist.get(i);
+            byte b0 = nbttagcompound1.getByte("Slot");
 
-	@Override
-	public boolean hasCustomName() {
-		return false;
-	}
+            if (b0 >= 0 && b0 < this.getSizeInventory()) {
+                this.setInventorySlotContents(b0, ItemStack.loadItemStackFromNBT(nbttagcompound1));
+            }
+        }
+    }
 
-	@Override
-	public IChatComponent getDisplayName() {
-		return new ChatComponentText("Accessories");
-	}
+    @Override
+    public boolean hasCustomName() {
+        return false;
+    }
 
-	@Override
-	public void openInventory(EntityPlayer player) {
-		
-	}
+    @Override
+    public IChatComponent getDisplayName() {
+        return new ChatComponentText("Accessories");
+    }
 
-	@Override
-	public void closeInventory(EntityPlayer player) {
-		
-	}
+    @Override
+    public void openInventory(EntityPlayer player) {
 
-	@Override
-	public int getField(int id) {
-		return 0;
-	}
+    }
 
-	@Override
-	public void setField(int id, int value) {
-		
-	}
+    @Override
+    public void closeInventory(EntityPlayer player) {
 
-	@Override
-	public int getFieldCount() {
-		return 0;
-	}
+    }
 
-	@Override
-	public void clear() {
-		for (int i=0; i<inventory.length; i++) {
-			inventory[i] = null;
-		}
-	}
+    @Override
+    public int getField(int id) {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value) {
+
+    }
+
+    @Override
+    public int getFieldCount() {
+        return 0;
+    }
+
+    @Override
+    public void clear() {
+        for (int i = 0; i < inventory.length; i++) {
+            inventory[i] = null;
+        }
+    }
 
 }

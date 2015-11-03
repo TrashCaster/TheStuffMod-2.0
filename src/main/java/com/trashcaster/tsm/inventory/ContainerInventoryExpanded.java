@@ -9,13 +9,13 @@ import net.minecraft.inventory.Slot;
 
 public class ContainerInventoryExpanded extends ContainerPlayer {
 
-	public ContainerInventoryExpanded(InventoryPlayer playerInventory, boolean localWorld, EntityPlayer player) {
-		super(playerInventory, localWorld, player);
-		InventoryAccessories accessories = ExtendedPlayer.get(player).getAccessories();
-		
-		for (int i=0; i<accessories.getSizeInventory(); i++) {
-			this.addSlotToContainer(new Slot(accessories,i,18*i,18*i));
-		}
-	}
+    public ContainerInventoryExpanded(InventoryPlayer playerInventory, boolean localWorld, EntityPlayer player) {
+        super(playerInventory, localWorld, player);
+        InventoryAccessories accessories = ExtendedPlayer.get(player).getAccessories();
+
+        for (int i = 0; i < accessories.getSizeInventory(); i++) {
+            this.addSlotToContainer(new Slot(accessories, i, 18 * i, 18 * i));
+        }
+    }
 
 }

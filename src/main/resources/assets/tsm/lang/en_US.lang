@@ -1,3 +1,7 @@
 inventory.accessory=Accessories
+inventory.accessory.tip=Any kind of \u00a79Accessory\u00a7r can go into this slot.
 inventory.accessoryOpen=Press 'Shift' + '%s' to switch to your accessory inventory
 inventory.accessoryClose=Press 'Shift' + '%s' to switch back to your regular inventory
+
+item.tsm.voxelizer.name=Voxelizer
+item.tsm.pendant.name=Pendant
